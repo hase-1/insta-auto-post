@@ -49,7 +49,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node --test test/",
+    "test": "node --test \"test/*.test.js\"",
     "post": "node --env-file-if-exists=.env src/index.js",
     "dry": "node --env-file-if-exists=.env src/index.js --dry-run"
   },
@@ -91,8 +91,11 @@ Expected: chromium のダウンロードが完了する
 
 - [ ] **Step 6: テストランナーが動くことを確認**
 
-Run: `mkdir test` してから `node --test test/`
-Expected: `tests 0` と表示され、終了コード 0
+Run: `mkdir test` してから `npm test`
+
+**注意:** ディレクトリ指定（`node --test test/`）はこのプロジェクトでは使えない。
+パスに日本語が含まれると Node がディレクトリをモジュールとして解決しようとして
+`Cannot find module` で失敗するため、グロブ指定（`node --test "test/*.test.js"`）を使う。
 
 - [ ] **Step 7: コミット**
 
