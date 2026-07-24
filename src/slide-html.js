@@ -14,6 +14,33 @@ function nl2br(text) {
   return escapeHtml(text).replaceAll('\n', '<br>');
 }
 
+/** 正規表現に埋め込む前にメタ文字を無害化する */
+function escapeRegExp(text) {
+  return text.replaceAll(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+/**
+ * 見出しの一部をブランド色で強調する。既存投稿は黒とオレンジの2色で
+ * 見出しを組んでいるため、強調句を受け取って該当箇所だけ色を変える。
+ *
+ * 置換は1パスで行う。句ごとに順次置換すると、短い句が既に囲まれた長い句の
+ * 内側に再度マッチして span が入れ子になるため。長い句を先に並べることで
+ * 重なり合う指定でも長い方が優先される。
+ */
+function highlight(text, emphasis = []) {
+  const html = nl2br(text);
+  const phrases = [...new Set(emphasis)]
+    .filter(Boolean)
+    .map((phrase) => nl2br(phrase))
+    .filter(Boolean)
+    .sort((a, b) => b.length - a.length);
+
+  if (!phrases.length) return html;
+
+  const pattern = new RegExp(phrases.map(escapeRegExp).join('|'), 'g');
+  return html.replaceAll(pattern, (match) => `<span class="hl">${match}</span>`);
+}
+
 const STYLES = `
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
@@ -26,8 +53,38 @@ const STYLES = `
     align-items: center;
     justify-content: center;
     overflow: hidden;
+    position: relative;
+  }
+  /* 既存投稿の背景にある三角形パターンを再現する。
+     カードの下に敷くだけなので本文の可読性には影響しない */
+  .facets { position: absolute; inset: 0; overflow: hidden; }
+  .facets i {
+    position: absolute;
+    display: block;
+    background: rgba(255,255,255,.10);
+  }
+  .facets i:nth-child(1) {
+    top: -80px; left: -60px; width: 620px; height: 620px;
+    clip-path: polygon(0 0, 100% 0, 0 100%);
+  }
+  .facets i:nth-child(2) {
+    top: 120px; right: -140px; width: 520px; height: 520px;
+    clip-path: polygon(100% 0, 100% 100%, 0 40%);
+    background: rgba(255,255,255,.07);
+  }
+  .facets i:nth-child(3) {
+    bottom: -120px; left: 40px; width: 560px; height: 560px;
+    clip-path: polygon(0 100%, 100% 100%, 20% 0);
+    background: rgba(0,0,0,.05);
+  }
+  .facets i:nth-child(4) {
+    bottom: -60px; right: -40px; width: 460px; height: 460px;
+    clip-path: polygon(100% 100%, 100% 0, 0 100%);
+    background: rgba(255,255,255,.09);
   }
   .card {
+    position: relative;
+    z-index: 1;
     width: 900px;
     min-height: 720px;
     background: ${BRAND.cardBg};
@@ -80,7 +137,7 @@ function bodyFor(slide) {
       return `
         <div class="card">
           <div class="tag">${escapeHtml(slide.tag)}</div>
-          <div class="title">${nl2br(slide.title)}</div>
+          <div class="title" style="font-size:${fitFontSize(slide.title, 76)}px">${highlight(slide.title, slide.emphasis)}</div>
           <div class="count">${escapeHtml(slide.countLabel)}</div>
         </div>
         <div class="swipe">Swipe next ⟶</div>`;
@@ -90,7 +147,7 @@ function bodyFor(slide) {
         <div class="pager">${String(slide.index).padStart(2, '0')} / ${String(slide.total).padStart(2, '0')}</div>
         <div class="card">
           <div class="num">${String(slide.index).padStart(2, '0')}</div>
-          <div class="item-title">${nl2br(slide.title)}</div>
+          <div class="item-title" style="font-size:${fitFontSize(slide.title, 64)}px">${highlight(slide.title, slide.emphasis)}</div>
           <div class="item-body">${nl2br(slide.body)}</div>
         </div>
         <div class="swipe">Swipe next ⟶</div>`;
@@ -108,9 +165,25 @@ function bodyFor(slide) {
   }
 }
 
+// カード内側の使える横幅（.card の width から左右 padding を引いた値）
+const TEXT_WIDTH = 788;
+
+/**
+ * 一番長い行がカード幅に収まる文字サイズを返す。
+ * 固定サイズだと長い見出しが途中で折り返して単語が割れるため、
+ * 行の長さから逆算する。全角1文字をほぼ1em として見積もる。
+ */
+function fitFontSize(text, max) {
+  const longest = Math.max(...String(text).split('\n').map((line) => line.length), 1);
+  return Math.min(max, Math.floor(TEXT_WIDTH / longest));
+}
+
+// 背景の三角形パターン。全スライド共通で card の下に敷く
+const FACETS = '<div class="facets"><i></i><i></i><i></i><i></i></div>';
+
 /** スライド定義から完全な HTML 文書を作る */
 export function pageHtml(slide) {
-  const inner = bodyFor(slide);
+  const inner = FACETS + bodyFor(slide);
   return `<!doctype html>
 <html lang="ja">
 <head>
