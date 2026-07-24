@@ -13,6 +13,14 @@
 | `ANTHROPIC_API_KEY` | https://console.anthropic.com/settings/keys で発行したキー |
 | `GITHUB_RAW_BASE` | このリポジトリを GitHub に作成した後の `https://raw.githubusercontent.com/OWNER/REPO/main` |
 
+## 注意: リポジトリは public にする
+
+Instagram Graph API は**公開 HTTP(S) URL からしか画像を取得できない**。リポジトリが private だと
+`raw.githubusercontent.com` の URL が認証を要求し、Instagram 側が画像を取れずに投稿が失敗する。
+
+投稿する画像はもともと Instagram で公開されるものなので、public リポジトリでも新たに漏れる情報はない。
+ただし `.env` は `.gitignore` 済みであることを必ず確認すること（トークンとAPIキーが入っているため）。
+
 ## コマンド
 
 ```bash
