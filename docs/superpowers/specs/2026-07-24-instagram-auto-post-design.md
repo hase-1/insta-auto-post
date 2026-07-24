@@ -17,6 +17,9 @@
 | 採用 API | Instagram API **with Instagram Login** |
 | Facebook ページ要否 | **不要**（Instagram Login 方式のため） |
 | 投稿レート上限 | 24時間あたり 100 件（カルーセルは1件としてカウント） |
+| API ホスト | `https://graph.instagram.com` / `v25.0` |
+| 画像形式 | **JPEG のみ**（PNG は受け付けられない） |
+| キャプション上限 | 2200 文字 / ハッシュタグ 30 個 |
 | 実行環境 | Node.js 24 / npm 11 / git 2.53（ローカル確認済み） |
 
 必要な権限スコープ: `instagram_business_basic`, `instagram_business_content_publish`
@@ -101,7 +104,7 @@
 ```
 [1] ネタ出し      themes.js     Claude API + 履歴で重複回避 → {theme, items[5], hook}
         ↓
-[2] 画像生成      render.js     HTMLテンプレート → Playwright → PNG ×7 (1080×1080)
+[2] 画像生成      render.js     HTMLテンプレート → Playwright → JPEG ×7 (1080×1080)
         ↓
 [3] キャプション  caption.js    Claude API（可変部）+ 固定ブロック合成
         ↓
@@ -194,7 +197,7 @@ on:
 | 単体 | `caption.js` の組み立て、`history.js` の重複判定、`config.js` の検証 |
 | 単体（モック） | `instagram.js` を fetch モックでテスト。API 呼び出し順序と引数を検証 |
 | 目視 | `--dry-run` で画像とキャプションを生成し、投稿せずローカル出力。既存投稿と並べて比較 |
-| 統合 | テスト用 Instagram アカウントへ実投稿（本番アカウントは使わない） |
+| 統合 | `--dry-run` の目視確認を通過後、本番アカウントへ手動実行で初回投稿する。テスト用アカウントは用意しない（別途 Meta アプリの作成が必要で割に合わないため）。想定と違えば投稿を削除して修正する |
 
 `--dry-run` フラグは開発中の主力手段とし、本番でも常に使えるよう残す。
 
