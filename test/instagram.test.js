@@ -47,12 +47,18 @@ test('createCarousel は children と media_type=CAROUSEL を送る', async () =
   assert.ok(url.includes(encodeURIComponent('キャプション')));
 });
 
-test('publish は media_publish に creation_id を送る', async () => {
-  const fetchImpl = mockFetch([{ ok: true, body: { id: 'MEDIA' } }]);
+test('publish は FINISHED を待ってから media_publish に creation_id を送る', async () => {
+  const fetchImpl = mockFetch([
+    // publish はまず親コンテナの状況を確認する
+    { ok: true, body: { status_code: 'FINISHED' } },
+    { ok: true, body: { id: 'MEDIA' } },
+  ]);
   const id = await client(fetchImpl).publish('PARENT');
 
   assert.equal(id, 'MEDIA');
-  const { url } = fetchImpl.calls[0];
+  // 1件目はステータス確認、2件目が publish
+  assert.ok(fetchImpl.calls[0].url.includes('status_code'));
+  const { url } = fetchImpl.calls[1];
   assert.ok(url.includes('/123/media_publish'));
   assert.ok(url.includes('creation_id=PARENT'));
 });

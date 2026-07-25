@@ -33,6 +33,33 @@ export function createInstagramClient({
     return payload;
   }
 
+  /** コンテナの処理状況を返す（IN_PROGRESS / FINISHED / ERROR / EXPIRED / PUBLISHED） */
+  async function getStatus(containerId) {
+    const { status_code: statusCode } = await call(
+      `/${containerId}`,
+      { fields: 'status_code' },
+      { method: 'GET' },
+    );
+    return statusCode;
+  }
+
+  /**
+   * コンテナが公開可能（FINISHED）になるまで待つ。
+   * カルーセル親コンテナは作成直後 IN_PROGRESS で、その状態で publish すると
+   * 「Media ID is not available」で失敗するため、FINISHED を待ってから公開する。
+   */
+  async function waitUntilReady(containerId, { attempts = 30, delayMs = 3000 } = {}) {
+    for (let i = 1; i <= attempts; i += 1) {
+      const status = await getStatus(containerId);
+      if (status === 'FINISHED') return;
+      if (status === 'ERROR' || status === 'EXPIRED') {
+        throw new Error(`コンテナが公開できない状態: ${status} (${containerId})`);
+      }
+      await new Promise((resolve) => setTimeout(resolve, delayMs));
+    }
+    throw new Error(`コンテナが時間内に FINISHED にならなかった: ${containerId}`);
+  }
+
   return {
     /** カルーセルの1枚分のコンテナを作る */
     async createCarouselItem(imageUrl) {
@@ -58,8 +85,13 @@ export function createInstagramClient({
       return id;
     },
 
+    getStatus,
+    waitUntilReady,
+
     /** 親コンテナを公開する。ここまで来て初めて投稿が世に出る */
     async publish(creationId) {
+      // 作成直後は処理中のことがあるため、FINISHED を待ってから公開する
+      await waitUntilReady(creationId);
       const { id } = await call(`/${userId}/media_publish`, { creation_id: creationId });
       return id;
     },
