@@ -18,23 +18,21 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
-          cache: npm
 
-      - run: npm ci
-      - run: npx playwright install --with-deps chromium
+      # キュー投稿は node 標準機能のみで動く（画像はコミット済み、
+      # レンダリング不要）。npm ci も Playwright も要らない
 
       - name: git の投稿者を設定
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: 投稿
+      - name: キューから投稿
         env:
           IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
           IG_USER_ID: ${{ secrets.IG_USER_ID }}
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           GITHUB_RAW_BASE: https://raw.githubusercontent.com/${{ github.repository }}/main
-        run: node src/index.js
+        run: node src/post-from-queue.js
 
       - name: 履歴をコミット
         run: |
@@ -44,7 +42,8 @@ jobs:
 
   # トークンは60日で失効する。定期的に更新しないと無言で停止する。
   # トークンは発行から24時間経たないと更新できないため、
-  # 手動実行(workflow_dispatch)では走らせずスケジュール時のみ実行する
+  # 手動実行(workflow_dispatch)では走らせずスケジュール時のみ実行する。
+  # GH_PAT が未設定なら無害にスキップする（投稿自体は post ジョブで完結）。
   refresh-token:
     if: github.event_name == 'schedule'
     runs-on: ubuntu-latest
@@ -56,6 +55,10 @@ jobs:
           IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
+          if [ -z "$GH_TOKEN" ]; then
+            echo "GH_PAT 未設定のためトークン自動更新をスキップ（60日以内に手動更新が必要）"
+            exit 0
+          fi
           NEW_TOKEN=$(curl -sf "https://graph.instagram.com/refresh_access_token?grant_type=ig_refresh_token&access_token=${IG_ACCESS_TOKEN}" | jq -r '.access_token')
           if [ -z "$NEW_TOKEN" ] || [ "$NEW_TOKEN" = "null" ]; then
             echo "トークン更新に失敗した"
