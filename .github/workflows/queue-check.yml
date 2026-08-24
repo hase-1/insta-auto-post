@@ -1,0 +1,22 @@
+name: 在庫チェック
+
+# 投稿キューの残りが少なくなったら、ジョブを失敗させて
+# GitHub からオーナー宛に通知メールを送る（追加サービス不要）。
+# メールが来たら Claude に「インスタの在庫を補充して」と頼めばよい。
+
+on:
+  schedule:
+    # 毎週日曜 JST 9:00（UTC 0:00）。週明けの投稿前に気づけるようにする
+    - cron: '0 0 * * 0'
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: キュー残数をチェック
+        run: node src/check-queue.js
