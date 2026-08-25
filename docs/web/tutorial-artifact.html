@@ -1,0 +1,473 @@
+<title>Instagram自動投稿ガイド</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FBF9F6; --surface:#FFFFFF; --surface-2:#F3F0EB;
+    --ink:#211E2B; --muted:#6B6676; --line:#E7E2DA;
+    --accent:#5B4BE0; --accent-soft:#ECE9FC;
+    --term-bg:#211E2B; --term-ink:#F5F3FB; --term-line:#3A3550; --term-dim:#B7B1C9;
+    --amber:#9A5B00; --amber-soft:#FBEFD8; --amber-line:#E9C77E;
+    --danger:#B8283C; --danger-soft:#FBE4E6; --danger-line:#EDA9B1;
+    --ok:#2E8B6B;
+    --maxw:780px;
+    --r:14px;
+  }
+  :root:not([data-theme="light"]){}
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#17151E; --surface:#1F1C29; --surface-2:#26222F;
+      --ink:#EDEAF2; --muted:#A29DB0; --line:#332E40;
+      --accent:#9C8CFF; --accent-soft:#2A2440;
+      --term-bg:#100E17; --term-ink:#F5F3FB; --term-line:#2E2942; --term-dim:#8A85A0;
+      --amber:#E0A24A; --amber-soft:#33291A; --amber-line:#5A4622;
+      --danger:#F0788A; --danger-soft:#3A1F26; --danger-line:#5E2E37;
+      --ok:#5FBF9B;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#17151E; --surface:#1F1C29; --surface-2:#26222F;
+    --ink:#EDEAF2; --muted:#A29DB0; --line:#332E40;
+    --accent:#9C8CFF; --accent-soft:#2A2440;
+    --term-bg:#100E17; --term-ink:#F5F3FB; --term-line:#2E2942; --term-dim:#8A85A0;
+    --amber:#E0A24A; --amber-soft:#33291A; --amber-line:#5A4622;
+    --danger:#F0788A; --danger-soft:#3A1F26; --danger-line:#5E2E37;
+    --ok:#5FBF9B;
+  }
+
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:'Zen Kaku Gothic New','Hiragino Sans','Noto Sans JP',sans-serif;
+    font-size:16px; line-height:1.8; letter-spacing:.01em;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:var(--maxw); margin:0 auto; padding:0 22px 96px;}
+  h1,h2,h3{font-family:'Zen Maru Gothic','Hiragino Maru Gothic ProN',sans-serif; text-wrap:balance; line-height:1.35;}
+  a{color:var(--accent);}
+  .mono{font-family:'JetBrains Mono',ui-monospace,monospace;}
+
+  /* header */
+  header{padding:56px 0 8px;}
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace; font-size:12.5px; font-weight:700;
+    letter-spacing:.16em; text-transform:uppercase; color:var(--accent);
+    display:flex; align-items:center; gap:9px;
+  }
+  .eyebrow::before{content:""; width:26px; height:2px; background:var(--accent); display:inline-block;}
+  h1{font-size:clamp(30px,6vw,44px); font-weight:700; margin:16px 0 10px;}
+  .lede{font-size:17px; color:var(--muted); margin:0 0 22px; max-width:60ch;}
+  .chips{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:8px;}
+  .chip{
+    font-size:13px; font-weight:700; padding:6px 13px; border-radius:999px;
+    background:var(--surface-2); color:var(--ink); border:1px solid var(--line);
+    display:inline-flex; align-items:center; gap:6px;
+  }
+  .chip b{color:var(--accent);}
+
+  /* legend */
+  .legend{
+    background:var(--surface); border:1px solid var(--line); border-radius:var(--r);
+    padding:20px 22px; margin:30px 0; box-shadow:0 1px 0 rgba(0,0,0,.02);
+  }
+  .legend h2{font-size:15px; margin:0 0 14px; letter-spacing:.02em;}
+  .legend-row{display:flex; gap:13px; align-items:flex-start; padding:8px 0;}
+  .legend-row + .legend-row{border-top:1px dashed var(--line);}
+  .legend-key{flex:0 0 auto; margin-top:2px;}
+  .legend-txt{font-size:14.5px; color:var(--ink);}
+  .legend-txt span{color:var(--muted);}
+  .swatch{
+    display:inline-flex; align-items:center; gap:7px; font-weight:700; font-size:13px;
+    padding:4px 10px; border-radius:8px;
+  }
+  .swatch.term{background:var(--term-bg); color:var(--term-ink);}
+  .swatch.you{background:var(--amber-soft); color:var(--amber); border:1px solid var(--amber-line);}
+  .swatch.warn{background:var(--danger-soft); color:var(--danger); border:1px solid var(--danger-line);}
+
+  /* section headings */
+  h2.sec{font-size:22px; margin:52px 0 6px; display:flex; align-items:baseline; gap:12px;}
+  .sec-sub{color:var(--muted); font-size:15px; margin:0 0 18px;}
+  hr{border:none; border-top:1px solid var(--line); margin:0;}
+
+  /* principle list */
+  .principles{display:flex; flex-direction:column; gap:12px; margin:22px 0;}
+  .principle{
+    display:flex; gap:15px; background:var(--surface); border:1px solid var(--line);
+    border-radius:var(--r); padding:16px 18px;
+  }
+  .principle .n{
+    flex:0 0 auto; width:30px; height:30px; border-radius:50%;
+    background:var(--accent-soft); color:var(--accent);
+    font-family:'JetBrains Mono',monospace; font-weight:700; font-size:15px;
+    display:grid; place-items:center;
+  }
+  .principle p{margin:0; font-size:15px;}
+  .principle strong{color:var(--ink);}
+
+  /* steps */
+  .step{margin:30px 0 8px;}
+  .step-head{display:flex; align-items:center; gap:16px; margin-bottom:6px;}
+  .step-num{
+    flex:0 0 auto; width:54px; height:54px; border-radius:16px;
+    background:var(--accent); color:#fff;
+    font-family:'JetBrains Mono',monospace; font-weight:700; font-size:22px;
+    display:grid; place-items:center; box-shadow:0 6px 16px -6px var(--accent);
+  }
+  .step-title{font-size:20px; font-weight:700; margin:0;}
+  .step-time{font-family:'JetBrains Mono',monospace; font-size:12.5px; color:var(--muted); margin-top:3px;}
+  .step-body{padding-left:0;}
+  .step p{font-size:15.5px;}
+
+  /* prompt card = COPY THIS */
+  .prompt{
+    background:var(--term-bg); border-radius:var(--r); overflow:hidden;
+    margin:16px 0; border:1px solid var(--term-line);
+    box-shadow:0 10px 30px -18px rgba(20,16,40,.6);
+  }
+  .prompt__bar{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding:11px 14px; background:rgba(255,255,255,.04); border-bottom:1px solid var(--term-line);
+  }
+  .prompt__label{
+    font-size:12.5px; font-weight:700; color:var(--term-ink); letter-spacing:.02em;
+    display:inline-flex; align-items:center; gap:7px;
+  }
+  .prompt__copy{
+    font-family:'JetBrains Mono',monospace; font-size:12px; font-weight:700;
+    color:var(--term-ink); background:rgba(255,255,255,.10);
+    border:1px solid rgba(255,255,255,.18); border-radius:8px; padding:6px 13px; cursor:pointer;
+    transition:background .15s, transform .1s;
+  }
+  .prompt__copy:hover{background:rgba(255,255,255,.18);}
+  .prompt__copy:active{transform:scale(.96);}
+  .prompt__copy.is-done{background:var(--ok); border-color:var(--ok); color:#fff;}
+  .prompt__copy:focus-visible{outline:2px solid #fff; outline-offset:2px;}
+  .prompt__body{
+    margin:0; padding:16px 16px 18px; color:var(--term-ink);
+    font-family:'Zen Kaku Gothic New','Noto Sans JP',sans-serif;
+    font-size:14.5px; line-height:1.85; white-space:pre-wrap; word-break:break-word;
+  }
+  .ph{
+    color:var(--amber); font-weight:700;
+    background:rgba(224,162,74,.14); border-bottom:1.5px dashed var(--amber);
+    border-radius:4px; padding:0 4px;
+  }
+
+  /* callouts */
+  .call{border-radius:var(--r); padding:15px 18px; margin:16px 0; font-size:15px;}
+  .call h4{margin:0 0 7px; font-size:15px; display:flex; align-items:center; gap:8px;}
+  .call p{margin:0;}
+  .call ul{margin:8px 0 0; padding-left:20px;}
+  .call li{margin:4px 0;}
+  .call.you{background:var(--amber-soft); border:1px solid var(--amber-line);}
+  .call.you h4{color:var(--amber);}
+  .call.warn{background:var(--danger-soft); border:1px solid var(--danger-line);}
+  .call.warn h4{color:var(--danger);}
+  .call.tip{background:var(--accent-soft); border:1px solid transparent;}
+  .call.tip h4{color:var(--accent);}
+
+  /* tables */
+  .tablewrap{overflow-x:auto; margin:18px 0;}
+  table{width:100%; border-collapse:collapse; font-size:14.5px; min-width:440px;}
+  th,td{text-align:left; padding:11px 14px; border-bottom:1px solid var(--line); vertical-align:top;}
+  th{font-size:12.5px; letter-spacing:.04em; color:var(--muted); text-transform:uppercase; font-family:'JetBrains Mono',monospace; font-weight:700;}
+  td b{color:var(--ink);}
+  .tnum{font-family:'JetBrains Mono',monospace; color:var(--accent); font-weight:700; white-space:nowrap;}
+
+  /* checklist */
+  .check{background:var(--surface); border:1px solid var(--line); border-radius:var(--r); padding:8px 20px; margin:18px 0;}
+  .check li{list-style:none; padding:11px 0 11px 34px; position:relative; font-size:15px; border-bottom:1px solid var(--line);}
+  .check li:last-child{border-bottom:none;}
+  .check li::before{
+    content:""; position:absolute; left:0; top:12px; width:20px; height:20px;
+    border:2px solid var(--accent); border-radius:6px; opacity:.6;
+  }
+  .check ul{margin:0; padding:0;}
+  .check li.star{font-weight:700;}
+  .check li.star::after{content:"よく詰まる"; position:absolute; right:0; top:11px; font-size:11px; font-weight:700; color:var(--danger); background:var(--danger-soft); padding:2px 8px; border-radius:999px;}
+
+  /* faq */
+  .faq{display:flex; flex-direction:column; gap:2px; margin:18px 0;}
+  details{background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:2px 18px; margin:6px 0;}
+  summary{cursor:pointer; font-weight:700; padding:13px 0; font-size:15.5px; list-style:none; display:flex; gap:10px; align-items:center;}
+  summary::-webkit-details-marker{display:none;}
+  summary::before{content:"Q"; font-family:'JetBrains Mono',monospace; color:var(--accent); font-weight:700;}
+  details[open] summary{border-bottom:1px solid var(--line);}
+  details p{font-size:14.5px; color:var(--muted); padding:4px 0 14px 22px; margin:0;}
+
+  footer{margin-top:60px; padding-top:24px; border-top:1px solid var(--line); color:var(--muted); font-size:13.5px;}
+  .kbd{font-family:'JetBrains Mono',monospace; font-size:12.5px; background:var(--surface-2); border:1px solid var(--line); border-radius:6px; padding:2px 7px;}
+
+  @media (max-width:520px){
+    .step-num{width:46px; height:46px; font-size:18px;}
+    h2.sec{font-size:20px;}
+  }
+  @media (prefers-reduced-motion:reduce){*{transition:none !important;}}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Claude Code ではじめる</div>
+    <h1>Instagram 自動投稿ガイド</h1>
+    <p class="lede">専門知識ゼロでも大丈夫。青いカードを Claude Code にコピペして、指示された所を押していくだけで、自分の Instagram が週3回、自動で投稿されるようになります。</p>
+    <div class="chips">
+      <span class="chip">💰 <b>無料</b></span>
+      <span class="chip">⏱ <b>約60〜90分</b></span>
+      <span class="chip">🔰 <b>初心者OK</b></span>
+      <span class="chip">🤖 画像も文章も<b>AIが作成</b></span>
+    </div>
+  </header>
+
+  <div class="legend">
+    <h2>🗺 このガイドの記号（最初に読んでください）</h2>
+    <div class="legend-row">
+      <div class="legend-txt"><span class="swatch term">📋 濃い青のカード</span> &nbsp;= <b>ここを丸ごとコピーして、Claude Code に貼り付ける</b> 部分です。右上の「コピー」ボタンでコピーできます。<span>（文中の<span class="ph">オレンジ色の部分</span>だけ、自分の内容に書き換えてから貼ります）</span></div>
+    </div>
+    <div class="legend-row">
+      <div class="legend-txt"><span class="swatch you">🙋 あなたがやる</span> &nbsp;= <b>あなたが自分で操作する</b> 部分（ログイン・「許可」ボタンなど）。ここだけは Claude が代われません。</div>
+    </div>
+    <div class="legend-row">
+      <div class="legend-txt"><span class="swatch warn">⚠️ 注意</span> &nbsp;= <b>特につまずきやすい所</b>。飛ばさないでください。</div>
+    </div>
+  </div>
+
+  <h2 class="sec">はじめに：3つの大原則</h2>
+  <p class="sec-sub">これだけ頭に入れておけば、9割うまくいきます。</p>
+  <div class="principles">
+    <div class="principle"><div class="n">1</div><p><strong>日本語で普通にお願いするだけ。</strong> コマンドや専門用語は覚えなくてOK。このガイドの青いカードをコピペするだけです。</p></div>
+    <div class="principle"><div class="n">2</div><p><strong>Claude が代われない作業は3つだけ。</strong> ①ログイン（パスワード入力）②「許可」ボタン ③規約への同意・アカウント作成。ここは自分で操作します。</p></div>
+    <div class="principle"><div class="n">3</div><p><strong>困ったら、そのまま伝えればいい。</strong> 「エラーが出た（画面の文字を貼る）」「どうすればいい?」で、Claude が調べて直します。うまくいかなくても壊れません。</p></div>
+  </div>
+
+  <h2 class="sec">Step 0 ｜ 先に用意するもの</h2>
+  <p class="sec-sub">これらが無くても、ガイドの中で作れます。</p>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>必要なもの</th><th>説明</th></tr></thead>
+      <tbody>
+        <tr><td><b>Instagram プロアカウント</b></td><td>ビジネス or クリエイター。個人アカウントは不可（アプリの設定から無料で切替できます）</td></tr>
+        <tr><td><b>Facebookアカウント</b></td><td>Meta の開発者登録に使う（無料）</td></tr>
+        <tr><td><b>GitHubアカウント</b></td><td>画像の公開と自動実行に使う（無料・ガイド内で作れます）</td></tr>
+        <tr><td><b>PC</b></td><td>Claude Code が動く環境</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="call tip">
+    <h4>💡 プロアカウントか分からないとき</h4>
+    <p>まずこれを Claude Code に貼って確認しましょう。</p>
+  </div>
+  <div class="prompt">
+    <div class="prompt__bar"><span class="prompt__label">📋 これをコピーして Claude Code に貼る</span><button class="prompt__copy" type="button">コピー</button></div>
+    <pre class="prompt__body">私のInstagram（<span class="ph">@ユーザー名</span>）がプロアカウント（ビジネスまたはクリエイター）か確認したいです。確認方法と、個人アカウントだった場合の切り替え方を教えてください。</pre>
+  </div>
+
+  <h2 class="sec">所要時間の目安</h2>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>Step</th><th>内容</th><th>時間</th><th>主に誰が</th></tr></thead>
+      <tbody>
+        <tr><td class="tnum">1</td><td>コードの土台を用意して自分用に作り替える</td><td class="tnum">10分</td><td>Claude</td></tr>
+        <tr><td class="tnum">2</td><td><b>Instagram APIトークンを取る</b></td><td class="tnum">25分</td><td>本人＋Claude</td></tr>
+        <tr><td class="tnum">3</td><td>GitHub連携（公開と自動実行）</td><td class="tnum">15分</td><td>本人＋Claude</td></tr>
+        <tr><td class="tnum">4</td><td>自分のテーマで投稿ネタを作る</td><td class="tnum">5分</td><td>Claude</td></tr>
+        <tr><td class="tnum">5</td><td>テスト投稿して確認</td><td class="tnum">10分</td><td>Claude</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- STEP 1 -->
+  <div class="step">
+    <div class="step-head">
+      <div class="step-num">01</div>
+      <div><h3 class="step-title">コードの土台を用意して、自分用に作り替える</h3><div class="step-time">約10分 ・ ほぼ Claude がやります</div></div>
+    </div>
+    <div class="step-body">
+      <p>ゼロから作ると何時間もかかるので、<strong>完成済みのコードを「ひな形」としてコピー</strong>し、そこから自分のアカウント用に作り替えます。まず ①下のカードで全体像を作らせ、②次のカードで自分用にカスタマイズします。</p>
+      <div class="prompt">
+        <div class="prompt__bar"><span class="prompt__label">📋 ① まずこれを貼る（オレンジ部分を自分の内容に）</span><button class="prompt__copy" type="button">コピー</button></div>
+        <pre class="prompt__body">Instagramのカルーセル自動投稿を、私のアカウント用にゼロから作りたいです。
+https://github.com/hase-1/insta-auto-post に完成済みのコード（キュー方式）があるので、これを「コードのひな形」としてコピーしてください。中のサンプル投稿やアカウント固有の設定は私用に作り替えます。まず全体像をやさしく説明してから進めてください。
+
+・私のアカウント：<span class="ph">@あなたのユーザー名</span>
+・発信テーマ：<span class="ph">（例：パン教室の集客／税理士のお金の豆知識）</span>
+・投稿の雰囲気：<span class="ph">（例：やさしく丁寧に／プロっぽく信頼感重視）</span></pre>
+      </div>
+      <div class="prompt">
+        <div class="prompt__bar"><span class="prompt__label">📋 ② 次にこれを貼る（自分用にカスタマイズ）</span><button class="prompt__copy" type="button">コピー</button></div>
+        <pre class="prompt__body">ひな形の中には前の持ち主の設定（アカウント名・色・固定の文章・サンプル投稿）が入っています。これを全部、私のアカウント（<span class="ph">@あなたのユーザー名</span>）と上のテーマに合わせて作り替えてください。前の持ち主の投稿在庫は消して構いません。</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 2 -->
+  <div class="step">
+    <div class="step-head">
+      <div class="step-num">02</div>
+      <div><h3 class="step-title">Instagram APIトークンを取る</h3><div class="step-time">約25分 ・ ここが一番の山場</div></div>
+    </div>
+    <div class="step-body">
+      <p>投稿するには「Instagramに投稿していい」という許可証（トークン）が必要です。Claude が画面を開いて案内してくれます。</p>
+      <div class="prompt">
+        <div class="prompt__bar"><span class="prompt__label">📋 これをコピーして Claude Code に貼る</span><button class="prompt__copy" type="button">コピー</button></div>
+        <pre class="prompt__body">Instagram投稿用のアクセストークンとユーザーIDを取りたいです。Meta for Developers で開発者用アプリを新規作成するところから、画面を開いて1ステップずつ案内してください。ログインや「許可」など私がやる部分は、その都度はっきり指示してください。</pre>
+      </div>
+      <div class="call you">
+        <h4>🙋 あなたがやる操作（Claudeが「ここ押して」と言います）</h4>
+        <ul>
+          <li>Meta（Facebook）にログインし、開発者登録に同意（初回のみ）</li>
+          <li>アプリを新規作成（用途は「Instagram」を選ぶ）</li>
+          <li><b>instagram_business_content_publish</b> 権限を追加</li>
+          <li>自分のInstagramを「テスター」として追加 →「承認」</li>
+          <li>「トークンを生成」→ Instagramにログイン＆「許可」</li>
+          <li>出てきた<b>トークンを .env ファイルに貼る</b>（チャットには貼らない）</li>
+        </ul>
+      </div>
+      <div class="call warn">
+        <h4>⚠️ 一番多いつまずき：テスター招待の「承認」</h4>
+        <p>「テスター」に追加しただけでは足りません。<b>Instagramアプリの「設定 › アプリとウェブサイト › テスターへのご招待」で、自分で「承認」ボタンを押す</b>必要があります。忘れると「開発者の役割が不十分」エラーで止まります。詰まったら次を貼ってください。</p>
+      </div>
+      <div class="prompt">
+        <div class="prompt__bar"><span class="prompt__label">📋 「開発者の役割が不十分」と出たとき</span><button class="prompt__copy" type="button">コピー</button></div>
+        <pre class="prompt__body">「開発者の役割が不十分」と出ました。どうすればいい?</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 3 -->
+  <div class="step">
+    <div class="step-head">
+      <div class="step-num">03</div>
+      <div><h3 class="step-title">GitHub連携（画像の公開と自動実行）</h3><div class="step-time">約15分</div></div>
+    </div>
+    <div class="step-body">
+      <p>画像をネット上に公開したり、決めた曜日に自動で投稿するために GitHub を使います。</p>
+      <div class="prompt">
+        <div class="prompt__bar"><span class="prompt__label">📋 これをコピーして Claude Code に貼る</span><button class="prompt__copy" type="button">コピー</button></div>
+        <pre class="prompt__body">GitHubを使って、画像の公開と自動実行の設定をしたいです。GitHubアカウントの用意から、リポジトリ作成、コードのアップ、自動実行の設定まで、1ステップずつ案内してください。</pre>
+      </div>
+      <div class="call you">
+        <h4>🙋 あなたがやる操作</h4>
+        <ul>
+          <li>GitHubにログイン（アカウントが無ければ、この場で無料作成）</li>
+          <li>案内に従って <b>public のリポジトリを作成</b>（画像をネットから取得できるようにするため）</li>
+          <li><b>個人アクセストークン（PAT）を1つ作成</b> → .env に貼る（Claudeが作成ページと設定を教えます）</li>
+        </ul>
+      </div>
+      <div class="prompt">
+        <div class="prompt__bar"><span class="prompt__label">📋 PATを貼ったら、これを貼る</span><button class="prompt__copy" type="button">コピー</button></div>
+        <pre class="prompt__body">PATを.envに貼りました。必要な設定（Secrets）を全部登録してください。</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 4 -->
+  <div class="step">
+    <div class="step-head">
+      <div class="step-num">04</div>
+      <div><h3 class="step-title">自分のテーマで投稿ネタを作る</h3><div class="step-time">約5分 ・ 全部 Claude がやります</div></div>
+    </div>
+    <div class="step-body">
+      <p>画像も文章も Claude が作ります。追加費用はゼロです。</p>
+      <div class="prompt">
+        <div class="prompt__bar"><span class="prompt__label">📋 これをコピーして Claude Code に貼る（テーマを自分の内容に）</span><button class="prompt__copy" type="button">コピー</button></div>
+        <pre class="prompt__body">投稿の在庫を8本作ってください。テーマは「<span class="ph">あなたの発信テーマ（例：パン教室の集客のコツ）</span>」で、内容が重複しないように。作ったら投稿キューに入れてGitHubにアップして。</pre>
+      </div>
+      <div class="call tip">
+        <h4>💡 仕上がりが気に入らないとき</h4>
+        <p>「もっとやさしい雰囲気にして」「この言葉を変えて」など、日本語で注文すれば何度でも作り直せます。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 5 -->
+  <div class="step">
+    <div class="step-head">
+      <div class="step-num">05</div>
+      <div><h3 class="step-title">テスト投稿して確認</h3><div class="step-time">約10分</div></div>
+    </div>
+    <div class="step-body">
+      <p>実際に1本だけ投稿して、ちゃんと動くか確認します。ここまで来れば、あとは自動で定期投稿されます。</p>
+      <div class="prompt">
+        <div class="prompt__bar"><span class="prompt__label">📋 これをコピーして Claude Code に貼る</span><button class="prompt__copy" type="button">コピー</button></div>
+        <pre class="prompt__body">実際に1本、テスト投稿してちゃんと動くか確認してください。投稿されたらInstagramのリンクを教えて。</pre>
+      </div>
+      <div class="prompt">
+        <div class="prompt__bar"><span class="prompt__label">📋 仕上げ（頻度の変更＋在庫切れ通知）</span><button class="prompt__copy" type="button">コピー</button></div>
+        <pre class="prompt__body">投稿の頻度と曜日を私の希望に変えたいです。<span class="ph">（例：火・金の朝8時）</span> それと、在庫が減ったら自動でメール通知が来るようにして。今後の注意点（トークンの有効期限など）も教えてください。</pre>
+      </div>
+    </div>
+  </div>
+
+  <h2 class="sec">✅ 完了チェックリスト</h2>
+  <div class="check">
+    <ul>
+      <li>Instagram がプロアカウントになっている</li>
+      <li>Meta で開発者アプリを作った</li>
+      <li>instagram_business_content_publish 権限を追加した</li>
+      <li class="star">テスター招待を「承認」した</li>
+      <li>トークンとユーザーIDを .env に貼った</li>
+      <li>public のGitHubリポジトリを作った</li>
+      <li>PATを作って .env に貼った</li>
+      <li>設定（Secrets）が登録された</li>
+      <li>テスト投稿が実際に公開された</li>
+    </ul>
+  </div>
+
+  <h2 class="sec">🔧 作ったあとの運用</h2>
+  <div class="principles">
+    <div class="principle"><div class="n">A</div><p><strong>普段は完全放置。</strong> 決めた曜日・時間に自動で投稿されます。</p></div>
+    <div class="principle"><div class="n">B</div><p><strong>在庫が減るとメールが届きます。</strong> 来たら Claude に「インスタの在庫を補充して」と頼めば、また8本ほど作ってくれます（約1分・無料）。</p></div>
+    <div class="principle"><div class="n">C</div><p><strong>トークンには有効期限があります</strong>（Instagramは約60日、GitHubのPATは作成時に選んだ期限）。近づいたら「トークンを作り直したい」と頼んで更新します。</p></div>
+  </div>
+
+  <h2 class="sec">💬 困ったときの「魔法の言葉」</h2>
+  <div class="prompt">
+    <div class="prompt__bar"><span class="prompt__label">📋 エラーが出たとき</span><button class="prompt__copy" type="button">コピー</button></div>
+    <pre class="prompt__body">今こういうエラーが出ています：<span class="ph">（画面の文字をそのまま貼る）</span>
+原因を調べて直してください。</pre>
+  </div>
+  <div class="prompt">
+    <div class="prompt__bar"><span class="prompt__label">📋 どこまで進んだか分からなくなったとき</span><button class="prompt__copy" type="button">コピー</button></div>
+    <pre class="prompt__body">今どこまで進んだか分からなくなりました。現状を確認して、次に何をすればいいか教えて。</pre>
+  </div>
+
+  <h2 class="sec">よくある質問</h2>
+  <div class="faq">
+    <details><summary>プログラミングの知識は要りますか?</summary><p>要りません。このガイドの青いカードをコピーして貼り、指示された所を押すだけです。</p></details>
+    <details><summary>お金はかかりますか?</summary><p>かかりません。画像も文章も Claude が作るので、有料のAIキーは不要です。GitHubもMetaも無料の範囲で使えます。</p></details>
+    <details><summary>途中でやめて、あとで続けられますか?</summary><p>できます。次に開いたとき「今どこまで進んだか確認して」と頼めば、Claude が現状を見て続きを案内します。</p></details>
+    <details><summary>投稿内容は自分で決められますか?</summary><p>はい。テーマを伝えれば Claude が作りますし、「この部分をこう変えて」と何度でも直せます。</p></details>
+  </div>
+
+  <footer>
+    <p>青いカードをコピーして Claude Code に貼る → 指示された所を押す → トークンを <span class="kbd">.env</span> に貼る。この繰り返しだけで、自分のアカウントの自動投稿が完成します。うまくいかなくても壊れないので、安心して進めてください。</p>
+  </footer>
+</div>
+
+<script>
+  document.querySelectorAll('.prompt').forEach(function(card){
+    var btn = card.querySelector('.prompt__copy');
+    var body = card.querySelector('.prompt__body');
+    if(!btn || !body) return;
+    btn.addEventListener('click', function(){
+      var text = body.innerText;
+      var done = function(label){
+        btn.textContent = label || '✓ コピー済み';
+        btn.classList.add('is-done');
+        setTimeout(function(){ btn.textContent = 'コピー'; btn.classList.remove('is-done'); }, 2000);
+      };
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(text).then(function(){ done(); }).catch(function(){ selectFallback(); });
+      } else { selectFallback(); }
+      function selectFallback(){
+        try{
+          var r = document.createRange(); r.selectNodeContents(body);
+          var s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+          var ok = document.execCommand('copy');
+          done(ok ? '✓ コピー済み' : '↑ を選択しました');
+        }catch(e){ done('↑ を手で選択'); }
+      }
+    });
+  });
+</script>
